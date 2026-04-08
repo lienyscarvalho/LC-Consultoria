@@ -58,13 +58,13 @@ export default function GastroMetricsDemo() {
         <span className="ml-auto text-sm font-mono opacity-70">Simulador Interativo • GastroMetrics v1.0</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-6">
         {/* Controls */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-serif font-bold text-[#C8973A] mb-4">Insira os dados do seu negócio</h3>
+        <div className="space-y-5">
+          <h3 className="text-xl font-serif font-bold text-[#C8973A] mb-2">Insira os dados do seu negócio</h3>
           
           <div className="space-y-2">
-            <label className="text-sm uppercase tracking-wider opacity-80">Faturamento Mensal Estimado</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider opacity-80">Faturamento Mensal Estimado</label>
             <div className="flex items-center gap-2">
               <span className="text-xl font-mono">R$</span>
               <input 
@@ -87,7 +87,7 @@ export default function GastroMetricsDemo() {
 
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-sm uppercase tracking-wider opacity-80">CMV (Custo Mercadoria)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-80">CMV (Custo Mercadoria)</label>
               <span className="font-mono text-[#C8973A]">{cmv}%</span>
             </div>
             <input 
@@ -102,7 +102,7 @@ export default function GastroMetricsDemo() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm uppercase tracking-wider opacity-80">Custos Fixos (Aluguel, Folha, etc)</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider opacity-80">Custos Fixos (Aluguel, Folha, etc)</label>
             <div className="flex items-center gap-2">
               <span className="text-xl font-mono">R$</span>
               <input 
@@ -116,7 +116,7 @@ export default function GastroMetricsDemo() {
 
           <div className="space-y-2">
              <div className="flex justify-between">
-              <label className="text-sm uppercase tracking-wider opacity-80">Custos Variáveis (Impostos/Taxas)</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-80">Custos Variáveis (Impostos/Taxas)</label>
               <span className="font-mono text-[#C8973A]">{variableCosts}%</span>
             </div>
             <input 
@@ -131,10 +131,10 @@ export default function GastroMetricsDemo() {
         </div>
 
         {/* Dashboard */}
-        <div className="bg-black/20 rounded-lg p-6 border border-white/5">
-          <h3 className="text-lg font-serif font-bold text-white mb-6 text-center">Resultado da Simulação</h3>
+        <div className="bg-black/20 rounded-lg p-5 border border-white/5">
+          <h3 className="text-lg font-serif font-bold text-white mb-4 text-center">Resultado da Simulação</h3>
           
-          <div className="h-64 w-full mb-6">
+          <div className="h-60 w-full mb-4">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -160,10 +160,10 @@ export default function GastroMetricsDemo() {
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white/5 p-3 rounded border border-white/10">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white/5 p-3 rounded border border-white/10 overflow-hidden">
               <div className="text-xs uppercase opacity-60 mb-1">Lucro Líquido</div>
-              <div className={`text-xl font-bold font-mono ${results.profit > 0 ? 'text-[#2E7D32]' : 'text-red-400'}`}>
+              <div className={`text-lg font-bold font-mono whitespace-nowrap ${results.profit > 0 ? 'text-[#2E7D32]' : 'text-red-400'}`}>
                 {formatCurrency(results.profit)}
               </div>
               <div className={`text-xs ${results.profit > 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -171,9 +171,9 @@ export default function GastroMetricsDemo() {
               </div>
             </div>
             
-            <div className="bg-white/5 p-3 rounded border border-white/10">
+            <div className="bg-white/5 p-3 rounded border border-white/10 overflow-hidden">
               <div className="text-xs uppercase opacity-60 mb-1">Ponto de Equilíbrio</div>
-              <div className="text-xl font-bold font-mono text-[#C8973A]">
+              <div className="text-lg font-bold font-mono text-[#C8973A] whitespace-nowrap">
                 {formatCurrency(results.breakEven)}
               </div>
               <div className="text-xs opacity-60">

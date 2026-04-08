@@ -1339,7 +1339,7 @@ export default function PlatformShell({ onClose }: { onClose: () => void }) {
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-[#FAF8F4] relative">
+      <main className="flex-1 overflow-y-auto bg-white relative my-4 mr-4 ml-4 rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden">
         {/* Top Bar */}
         <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 p-4 md:px-6 flex items-center justify-between z-20">
           <div className="flex items-center gap-4">
