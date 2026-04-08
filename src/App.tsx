@@ -7,13 +7,13 @@ import { useState, useEffect, FormEvent } from 'react';
 import GastroMetricsDemo from './components/GastroMetricsDemo';
 import AIChat from './components/AIChat';
 import Logo from './components/Logo';
-import GastroMetricsPage from './components/GastroMetricsPage';
+import PlatformShell from './components/PlatformShell';
 import { AnimatePresence } from 'motion/react';
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [isGMPageOpen, setIsGMPageOpen] = useState(false);
+  const [isPlatformOpen, setIsPlatformOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -238,11 +238,11 @@ export default function App() {
               </div>
             </div>
             <button 
-              onClick={() => setIsGMPageOpen(true)}
+              onClick={() => setIsPlatformOpen(true)}
               className="btn-primary" 
               style={{marginTop: '2rem'}}
             >
-              Ver Detalhes da Ferramenta →
+              Acessar Plataforma GastroMetrics →
             </button>
           </div>
           <div className="reveal w-full">
@@ -356,7 +356,7 @@ export default function App() {
               <li>Escala de equipe automatizada</li>
               <li>Suporte da comunidade</li>
             </ul>
-            <a href="#contato" className="plan-btn">Ativar Acesso Gratuito</a>
+            <a href="#contato" onClick={(e) => { e.preventDefault(); setIsPlatformOpen(true); }} className="plan-btn">Ativar Acesso Gratuito</a>
           </div>
         </div>
       </section>
@@ -563,8 +563,8 @@ export default function App() {
       <AIChat />
 
       <AnimatePresence>
-        {isGMPageOpen && (
-          <GastroMetricsPage onClose={() => setIsGMPageOpen(false)} />
+        {isPlatformOpen && (
+          <PlatformShell onClose={() => setIsPlatformOpen(false)} />
         )}
       </AnimatePresence>
     </>
