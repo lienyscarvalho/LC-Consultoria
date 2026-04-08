@@ -64,7 +64,7 @@ export default function App() {
   return (
     <>
       {/* NAV */}
-      <nav>
+      <nav className="main-nav">
         <a href="#home" className="logo-container">
           <Logo />
         </a>
