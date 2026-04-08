@@ -27,7 +27,9 @@ import {
   HelpCircle,
   Settings,
   LogOut,
-  Sparkles
+  Sparkles,
+  FileDown,
+  BookOpen
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -1153,6 +1155,82 @@ const ComunidadeView = () => (
 
 // --- Main Platform Shell ---
 
+const ManualView = () => (
+  <div className="space-y-8 pb-12">
+    <div className="bg-[#1A237E] p-12 rounded-3xl text-white relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#C8973A] opacity-10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+      <div className="relative z-10">
+        <h2 className="text-4xl font-serif font-bold mb-4">Manual do Usuário</h2>
+        <p className="text-lg text-white/70 max-w-2xl">Bem-vindo ao GastroMetrics. Este guia ajudará você a navegar e extrair o máximo de valor de cada ferramenta da nossa plataforma.</p>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[
+        { 
+          title: "Dashboard Geral", 
+          icon: <LayoutDashboard size={24}/>, 
+          desc: "Visão panorâmica do seu negócio. Acompanhe faturamento, ticket médio e CMV em tempo real.",
+          use: "Use para começar o dia e identificar tendências rápidas."
+        },
+        { 
+          title: "Diagnóstico 360°", 
+          icon: <BarChart3 size={24}/>, 
+          desc: "Análise profunda de saúde financeira e operacional.",
+          use: "Use mensalmente para ajustes estratégicos de rota."
+        },
+        { 
+          title: "Fichas Técnicas", 
+          icon: <ChefHat size={24}/>, 
+          desc: "Padronização total de receitas e cálculo automático de custos.",
+          use: "Cadastre cada ingrediente para ter precisão cirúrgica no lucro."
+        },
+        { 
+          title: "Markup & CMV", 
+          icon: <Calculator size={24}/>, 
+          desc: "Ferramenta de precificação inteligente baseada em custos reais.",
+          use: "Ajuste seus preços sempre que houver variação nos insumos."
+        },
+        { 
+          title: "Engenharia de Cardápio", 
+          icon: <TrendingUp size={24}/>, 
+          desc: "Matriz BC para classificar pratos em Estrelas, Cavalos de Carga, Enigmas e Cães.",
+          use: "Otimize seu lucro focando nos pratos que realmente trazem margem."
+        },
+        { 
+          title: "Gestão de Estoque", 
+          icon: <Box size={24}/>, 
+          desc: "Controle de entradas, saídas e alertas de estoque crítico.",
+          use: "Evite rupturas e desperdícios com inventários frequentes."
+        }
+      ].map((item, i) => (
+        <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:border-[#C8973A] transition-all group">
+          <div className="w-12 h-12 rounded-xl bg-[#1A237E]/5 flex items-center justify-center text-[#1A237E] mb-6 group-hover:bg-[#C8973A] group-hover:text-white transition-all">
+            {item.icon}
+          </div>
+          <h3 className="text-lg font-bold text-[#1A237E] mb-3">{item.title}</h3>
+          <p className="text-sm text-gray-500 leading-relaxed mb-4">{item.desc}</p>
+          <div className="pt-4 border-t border-gray-50">
+            <span className="text-[10px] font-bold text-[#C8973A] uppercase tracking-widest">Como usar:</span>
+            <p className="text-xs text-gray-400 mt-1 italic">{item.use}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div className="bg-amber-50 p-8 rounded-2xl border border-amber-100 flex flex-col md:flex-row gap-8 items-center">
+      <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+        <HelpCircle size={32}/>
+      </div>
+      <div>
+        <h3 className="text-lg font-bold text-amber-900 mb-2">Precisa de suporte adicional?</h3>
+        <p className="text-sm text-amber-800/70">Nossa equipe de consultores está disponível na Comunidade VIP para ajudar com dúvidas específicas sobre a gestão do seu restaurante.</p>
+        <button className="mt-4 px-6 py-2 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700 transition-colors">Acessar Comunidade</button>
+      </div>
+    </div>
+  </div>
+);
+
 export default function PlatformShell({ onClose }: { onClose: () => void }) {
   const [activeTool, setActiveTool] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -1168,6 +1246,7 @@ export default function PlatformShell({ onClose }: { onClose: () => void }) {
     { id: 'kpi', label: 'KPIs & NPS', icon: <Users size={20}/>, component: <KPIView /> },
     { id: 'escala', label: 'Escala de Equipe', icon: <Calendar size={20}/>, component: <EscalaView /> },
     { id: 'comunidade', label: 'Comunidade', icon: <MessageSquare size={20}/>, component: <ComunidadeView /> },
+    { id: 'manual', label: 'Manual do Usuário', icon: <BookOpen size={20}/>, component: <ManualView /> },
   ];
 
   return (
@@ -1179,8 +1258,8 @@ export default function PlatformShell({ onClose }: { onClose: () => void }) {
     >
       {/* Sidebar */}
       <motion.aside 
-        animate={{ width: isSidebarOpen ? 280 : 80 }}
-        className="bg-[#1A237E] text-white flex flex-col h-full transition-all duration-300 relative z-30 shadow-2xl"
+        animate={{ width: isSidebarOpen ? 240 : 70 }}
+        className="bg-[#1A237E] text-white flex flex-col h-full transition-all duration-300 relative z-30 shadow-2xl shrink-0"
       >
         <div className="p-6 flex items-center justify-between border-b border-white/10">
           {isSidebarOpen && (
@@ -1262,28 +1341,32 @@ export default function PlatformShell({ onClose }: { onClose: () => void }) {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto bg-[#FAF8F4] relative">
         {/* Top Bar */}
-        <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 p-4 md:px-8 flex items-center justify-between z-20">
+        <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 p-4 md:px-6 flex items-center justify-between z-20">
           <div className="flex items-center gap-4">
             <div className="md:hidden">
               <LogoIcon />
             </div>
-            <h1 className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+            <h1 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
               {tools.find(t => t.id === activeTool)?.label}
             </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-bold">
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-              SISTEMA ONLINE
-            </div>
-            <div className="w-8 h-8 rounded-full bg-[#C8973A] flex items-center justify-center text-[#1A237E] font-bold text-xs shadow-sm">
-              LC
+          <div className="flex items-center gap-3">
+            <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-bold border border-emerald-100 hover:bg-emerald-100 transition-colors shadow-sm">
+              <FileDown size={14} />
+              EXPORTAR PDF
+            </button>
+            <div className="flex items-center gap-3 pl-3 border-l border-gray-100">
+              <div className="text-right hidden sm:block">
+                <div className="text-[11px] font-bold text-gray-800">Lienys Carvalho</div>
+                <div className="text-[9px] text-gray-400">Admin</div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-[#C8973A] flex items-center justify-center text-[#1A237E] font-bold text-xs shadow-sm">LC</div>
             </div>
           </div>
         </header>
 
         {/* Content Area */}
-        <div className="p-4 md:p-8 max-w-6xl mx-auto">
+        <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTool}
