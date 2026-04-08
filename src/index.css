@@ -43,6 +43,11 @@ nav {
   letter-spacing: 0.02em;
   text-decoration: none;
 }
+.logo-container {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
 .logo span { color: var(--white); font-weight: 400; }
 .nav-links { display: flex; gap: 2rem; list-style: none; }
 .nav-links a {

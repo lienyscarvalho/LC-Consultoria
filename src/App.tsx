@@ -6,10 +6,14 @@
 import { useState, useEffect, FormEvent } from 'react';
 import GastroMetricsDemo from './components/GastroMetricsDemo';
 import AIChat from './components/AIChat';
+import Logo from './components/Logo';
+import GastroMetricsPage from './components/GastroMetricsPage';
+import { AnimatePresence } from 'motion/react';
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isGMPageOpen, setIsGMPageOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -61,7 +65,9 @@ export default function App() {
     <>
       {/* NAV */}
       <nav>
-        <a href="#home" className="logo">LC<span> Consultoria</span></a>
+        <a href="#home" className="logo-container">
+          <Logo />
+        </a>
         <ul className={`nav-links ${isMenuOpen ? 'open' : ''}`} id="navLinks">
           <li><a href="#sobre" onClick={handleLinkClick}>Sobre</a></li>
           <li><a href="#servicos" onClick={handleLinkClick}>Serviços</a></li>
@@ -164,39 +170,39 @@ export default function App() {
         <div className="services-grid">
           <div className="service-card reveal">
             <div className="service-icon">📊</div>
-            <h3>Diagnóstico Financeiro</h3>
-            <p>Análise completa do CMV real, identificação de desperdícios ocultos, mapeamento de custos fixos e variáveis, e DRE gerencial personalizado para o seu negócio.</p>
-            <span className="service-price">→ Sessão única ou mensal</span>
+            <h3>Diagnóstico Financeiro 360°</h3>
+            <p>Análise profunda de fluxo de caixa, DRE gerencial, identificação de gargalos financeiros e plano de recuperação imediata. Mapeamos cada centavo que entra e sai da sua operação.</p>
+            <span className="service-price">→ Auditoria Completa</span>
           </div>
           <div className="service-card reveal">
             <div className="service-icon">📋</div>
-            <h3>Engenharia de Cardápio</h3>
-            <p>Elaboração de Fichas Técnicas Profissionais (FTP) com cálculo de Fator de Correção, Fator de Cocção, precificação via Markup e análise de rentabilidade por prato.</p>
-            <span className="service-price">→ Por cardápio completo</span>
+            <h3>Engenharia de Cardápio Estratégica</h3>
+            <p>Aplicamos a Matriz de Miller para classificar pratos por popularidade e rentabilidade. Fichas técnicas com FC, FCy e markup preciso para maximizar sua margem de contribuição.</p>
+            <span className="service-price">→ Otimização de Mix</span>
           </div>
           <div className="service-card reveal">
             <div className="service-icon">💰</div>
-            <h3>Formação de Preços</h3>
-            <p>Calculamos o Markup ideal considerando suas despesas fixas, variáveis e margem de lucro desejada. Elimine o "achismo" e precifique com segurança e competitividade.</p>
-            <span className="service-price">→ Por cardápio ou avulso</span>
+            <h3>Precificação Inteligente</h3>
+            <p>Definição de preços baseada em custos reais, impostos, taxas de cartão e lucro desejado. Elimine o "achismo" e precifique com segurança e competitividade no mercado.</p>
+            <span className="service-price">→ Markup & Margem</span>
           </div>
           <div className="service-card reveal">
             <div className="service-icon">📦</div>
-            <h3>Gestão de Estoque</h3>
-            <p>Implantação do inventário permanente com curva ABC, controle de validades, alertas de estoque baixo e integração com ficha técnica para cálculo automático de CMV.</p>
-            <span className="service-price">→ Consultoria + implantação</span>
+            <h3>Gestão de Estoque & Suprimentos</h3>
+            <p>Implantação de processos de recebimento, inventário rotativo e curva ABC de insumos. Integração total com ficha técnica para cálculo automático de CMV real vs teórico.</p>
+            <span className="service-price">→ Controle de Perdas</span>
           </div>
           <div className="service-card reveal">
             <div className="service-icon">👥</div>
-            <h3>Gestão de Equipe</h3>
-            <p>Gerador de escalas 5x1, 6x1 e 12x36 conforme legislação trabalhista, controle de folgas obrigatórias e dimensionamento ideal de equipe por volume de vendas.</p>
-            <span className="service-price">→ Consultoria mensal</span>
+            <h3>Otimização de Escalas e RH</h3>
+            <p>Dimensionamento de equipe baseado em produtividade e volume de vendas. Gerador de escalas inteligente (5x1, 6x1, 12x36) reduzindo horas extras e turnover.</p>
+            <span className="service-price">→ Eficiência Operacional</span>
           </div>
           <div className="service-card reveal">
             <div className="service-icon">🎯</div>
-            <h3>Treinamento Gerencial</h3>
-            <p>Capacitação presencial ou online para donos e gerentes: leitura de indicadores, tomada de decisão baseada em dados, gestão de custos e padronização de processos.</p>
-            <span className="service-price">→ Turmas ou in company</span>
+            <h3>Treinamento de Liderança</h3>
+            <p>Capacitação para donos e gerentes na leitura de indicadores (KPIs). Transformamos sua equipe em gestores focados em resultados e padronização de processos.</p>
+            <span className="service-price">→ Gestão por Dados</span>
           </div>
         </div>
       </section>
@@ -231,6 +237,13 @@ export default function App() {
                 </div>
               </div>
             </div>
+            <button 
+              onClick={() => setIsGMPageOpen(true)}
+              className="btn-primary" 
+              style={{marginTop: '2rem'}}
+            >
+              Ver Detalhes da Ferramenta →
+            </button>
           </div>
           <div className="reveal w-full">
             <GastroMetricsDemo />
@@ -322,56 +335,28 @@ export default function App() {
       <section id="planos">
         <div className="text-center reveal">
           <span className="section-tag">Planos e Investimento</span>
-          <h2 className="section-title">Escolha o plano ideal para seu negócio</h2>
-          <p className="section-sub">Planos flexíveis para restaurantes em diferentes estágios. Todos incluem acesso à plataforma GastroMetrics.</p>
+          <h2 className="section-title">Acesso Premium Gratuito</h2>
+          <p className="section-sub">Acreditamos no poder dos dados para transformar o mercado. Por isso, liberamos todas as nossas ferramentas de forma gratuita.</p>
         </div>
-        <div className="plans-grid reveal">
-          <div className="plan-card">
-            <div className="plan-name">Starter</div>
-            <div className="plan-price">R$890</div>
-            <div className="plan-period">/mês · até 30 pratos</div>
-            <ul className="plan-features">
-              <li>Diagnóstico financeiro inicial</li>
-              <li>Até 30 fichas técnicas (FTP)</li>
-              <li>Cálculo de Markup e CMV</li>
-              <li>Dashboard básico GastroMetrics</li>
-              <li>2 consultorias mensais por vídeo</li>
-              <li>Suporte via WhatsApp</li>
-            </ul>
-            <a href="#contato" className="plan-btn">Começar agora</a>
-          </div>
+        <div className="plans-grid reveal" style={{ gridTemplateColumns: '1fr', maxWidth: '600px', margin: '3.5rem auto 0' }}>
           <div className="plan-card featured">
-            <div className="plan-badge">Mais popular</div>
-            <div className="plan-name">Profissional</div>
-            <div className="plan-price">R$1.890</div>
-            <div className="plan-period">/mês · até 80 pratos</div>
+            <div className="plan-badge">Acesso Total</div>
+            <div className="plan-name">Plano Premium Free</div>
+            <div className="plan-price">R$0</div>
+            <div className="plan-period">Acesso ilimitado a todas as ferramentas</div>
             <ul className="plan-features">
-              <li>Tudo do Starter, mais:</li>
-              <li>Até 80 fichas técnicas + bebidas</li>
-              <li>Gestão de estoque com Curva ABC</li>
+              <li>Diagnóstico financeiro 360°</li>
+              <li>Fichas técnicas ilimitadas (FTP)</li>
+              <li>Cálculo de Markup e CMV Real</li>
+              <li>Dashboard Completo GastroMetrics</li>
+              <li>Engenharia de Cardápio Digital</li>
+              <li>Gestão de Estoque com Curva ABC</li>
               <li>DRE gerencial mensal completo</li>
               <li>Dashboards avançados de KPI e NPS</li>
-              <li>4 consultorias mensais (pres. ou online)</li>
-              <li>Crítica gastronômica trimestral</li>
               <li>Escala de equipe automatizada</li>
+              <li>Suporte da comunidade</li>
             </ul>
-            <a href="#contato" className="plan-btn">Escolher Profissional</a>
-          </div>
-          <div className="plan-card">
-            <div className="plan-name">Enterprise</div>
-            <div className="plan-price">Sob consulta</div>
-            <div className="plan-period">Redes e multi-unidades</div>
-            <ul className="plan-features">
-              <li>Tudo do Profissional, mais:</li>
-              <li>Cardápio ilimitado de pratos</li>
-              <li>Integração com PDV e ponto eletrônico</li>
-              <li>Gestor dedicado exclusivo</li>
-              <li>BI personalizado por unidade</li>
-              <li>Consultoria presencial semanal</li>
-              <li>Treinamento de equipe in company</li>
-              <li>SLA de suporte prioritário</li>
-            </ul>
-            <a href="#contato" className="plan-btn">Falar com especialista</a>
+            <a href="#contato" className="plan-btn">Ativar Acesso Gratuito</a>
           </div>
         </div>
       </section>
@@ -447,7 +432,7 @@ export default function App() {
               <div className="contact-icon">📧</div>
               <div>
                 <strong>E-mail</strong>
-                <span>lcconsultoria@lienyscarvalho.com.br</span>
+                <span>contato@lcconsultorianegocios.com.br</span>
               </div>
             </div>
             <div className="contact-item">
@@ -522,7 +507,7 @@ export default function App() {
       <footer>
         <div className="footer-grid">
           <div className="footer-brand">
-            <a href="#home" className="logo">LC<span> Consultoria</span></a>
+            <Logo className="mb-4" />
             <p>Transformando negócios gastronômicos com dados, estratégia e expertise. De restaurantes independentes a redes, levamos sua operação ao próximo nível.</p>
           </div>
           <div className="footer-col">
@@ -576,6 +561,12 @@ export default function App() {
       </a>
 
       <AIChat />
+
+      <AnimatePresence>
+        {isGMPageOpen && (
+          <GastroMetricsPage onClose={() => setIsGMPageOpen(false)} />
+        )}
+      </AnimatePresence>
     </>
   );
 }
