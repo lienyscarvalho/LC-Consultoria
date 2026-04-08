@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LayoutDashboard, 
@@ -29,7 +29,8 @@ import {
   LogOut,
   Sparkles,
   FileDown,
-  BookOpen
+  BookOpen,
+  ChevronRight
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -46,6 +47,8 @@ import {
   Pie,
   Legend
 } from 'recharts';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // --- Mock Data ---
 const revenueData = [
@@ -71,36 +74,36 @@ const COLORS = ['#1A237E', '#C8973A', '#2E7D32', '#EF6C00', '#666'];
 // --- Sub-components for Tools ---
 
 const DiagnosticoView = () => (
-  <div className="space-y-6">
+  <div className="space-y-10">
     <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-serif font-bold text-[#1A237E]">Diagnóstico Financeiro 360°</h2>
-      <div className="flex gap-2">
-        <button className="p-2 bg-white border border-gray-200 rounded-lg text-gray-500"><Download size={18}/></button>
-        <button className="btn-primary py-2 px-4 text-sm">Gerar Novo Relatório</button>
+      <h2 className="text-3xl font-serif font-bold text-[#1A237E]">Diagnóstico Financeiro 360°</h2>
+      <div className="flex gap-3">
+        <button className="p-3 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"><Download size={20}/></button>
+        <button className="btn-primary py-3 px-6 text-sm flex items-center gap-2 shadow-lg"><Plus size={18}/> Gerar Novo Relatório</button>
       </div>
     </div>
     
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
       {[
         { label: "Score Geral", value: "8.4", sub: "/10", color: "text-emerald-600" },
         { label: "Potencial de Economia", value: "R$ 4.2k", sub: "/mês", color: "text-[#C8973A]" },
         { label: "Ponto de Equilíbrio", value: "Dia 18", sub: "Projeção", color: "text-[#1A237E]" },
         { label: "Margem de Segurança", value: "22%", sub: "Atual", color: "text-blue-600" },
       ].map((stat, i) => (
-        <div key={i} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{stat.label}</h4>
+        <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{stat.label}</h4>
           <div className="flex items-baseline gap-1">
-            <span className={`text-2xl font-black ${stat.color}`}>{stat.value}</span>
-            <span className="text-[10px] text-gray-400 font-bold">{stat.sub}</span>
+            <span className={`text-3xl font-black ${stat.color}`}>{stat.value}</span>
+            <span className="text-xs text-gray-400 font-bold">{stat.sub}</span>
           </div>
         </div>
       ))}
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 className="font-bold text-sm mb-6">Análise de Pilares (0-10)</h3>
-        <div className="h-[300px]">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+        <h3 className="font-bold text-lg text-[#1A237E] mb-10">Análise de Pilares (0-10)</h3>
+        <div className="h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -113,8 +116,8 @@ const DiagnosticoView = () => (
                 ]}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={90}
+                innerRadius={80}
+                outerRadius={120}
                 paddingAngle={5}
                 dataKey="value"
               >
@@ -128,9 +131,9 @@ const DiagnosticoView = () => (
           </ResponsiveContainer>
         </div>
       </div>
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 className="font-bold text-sm mb-4">Plano de Ação Recomendado</h3>
-        <div className="space-y-3">
+      <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+        <h3 className="font-bold text-lg text-[#1A237E] mb-8">Plano de Ação Recomendado</h3>
+        <div className="space-y-4">
           {[
             { task: "Revisar fichas técnicas dos 5 pratos mais vendidos", priority: "Alta", impact: "Alto", status: "Pendente" },
             { task: "Negociar preço do fornecedor de proteínas", priority: "Média", impact: "Médio", status: "Em andamento" },
@@ -138,15 +141,15 @@ const DiagnosticoView = () => (
             { task: "Treinamento de Upsell para equipe de salão", priority: "Baixa", impact: "Médio", status: "Pendente" },
             { task: "Auditoria de estoque quinzenal", priority: "Média", impact: "Alto", status: "Concluído" }
           ].map((item, i) => (
-            <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-              <div className="flex items-center gap-3">
-                <div className={`w-1.5 h-1.5 rounded-full ${item.priority === 'Alta' ? 'bg-red-500' : item.priority === 'Média' ? 'bg-yellow-500' : 'bg-blue-500'}`}></div>
+            <div key={i} className="flex items-center justify-between p-5 bg-gray-50 rounded-xl border border-gray-100 hover:bg-white transition-colors">
+              <div className="flex items-center gap-4">
+                <div className={`w-2.5 h-2.5 rounded-full ${item.priority === 'Alta' ? 'bg-red-500' : item.priority === 'Média' ? 'bg-yellow-500' : 'bg-blue-500'}`}></div>
                 <div>
-                  <div className="text-xs font-bold text-gray-800">{item.task}</div>
-                  <div className="text-[9px] text-gray-400 uppercase font-bold">Impacto: {item.impact}</div>
+                  <div className="text-sm font-bold text-gray-800">{item.task}</div>
+                  <div className="text-[10px] text-gray-400 uppercase font-bold tracking-wider mt-0.5">Impacto: {item.impact}</div>
                 </div>
               </div>
-              <span className={`text-[9px] font-bold px-2 py-1 rounded border ${
+              <span className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border ${
                 item.status === 'Concluído' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-white border-gray-200 text-gray-400'
               }`}>{item.status}</span>
             </div>
@@ -158,61 +161,61 @@ const DiagnosticoView = () => (
 );
 
 const FichasView = () => (
-  <div className="space-y-6">
+  <div className="space-y-10">
     <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-serif font-bold text-[#1A237E]">Fichas Técnicas (FTP)</h2>
-      <div className="flex gap-2">
-        <button className="p-2 bg-white border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition-colors"><Download size={18}/></button>
-        <button className="btn-primary py-2 px-4 text-sm flex items-center gap-2"><Plus size={16}/> Nova Ficha</button>
+      <h2 className="text-3xl font-serif font-bold text-[#1A237E]">Fichas Técnicas (FTP)</h2>
+      <div className="flex gap-3">
+        <button className="p-3 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"><Download size={20}/></button>
+        <button className="btn-primary py-3 px-6 text-sm flex items-center gap-2 shadow-lg"><Plus size={18}/> Nova Ficha</button>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <div className="text-[10px] font-bold text-gray-400 uppercase mb-1">Total de Fichas</div>
-        <div className="text-2xl font-black text-[#1A237E]">42</div>
-        <div className="text-[9px] text-emerald-600 font-bold">+3 este mês</div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Total de Fichas</div>
+        <div className="text-3xl font-black text-[#1A237E]">42</div>
+        <div className="text-xs text-emerald-600 font-bold mt-1">+3 este mês</div>
       </div>
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <div className="text-[10px] font-bold text-gray-400 uppercase mb-1">Margem Média</div>
-        <div className="text-2xl font-black text-emerald-600">68.5%</div>
-        <div className="text-[9px] text-gray-400 font-bold">Meta: 70%</div>
+      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Margem Média</div>
+        <div className="text-3xl font-black text-emerald-600">68.5%</div>
+        <div className="text-xs text-gray-400 font-bold mt-1">Meta: 70%</div>
       </div>
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <div className="text-[10px] font-bold text-gray-400 uppercase mb-1">Itens Críticos (CMV &gt; 35%)</div>
-        <div className="text-2xl font-black text-red-500">5</div>
-        <div className="text-[9px] text-red-400 font-bold">Ação necessária</div>
+      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Itens Críticos (CMV &gt; 35%)</div>
+        <div className="text-3xl font-black text-red-500">5</div>
+        <div className="text-xs text-red-400 font-bold mt-1">Ação necessária</div>
       </div>
     </div>
 
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-4 border-b bg-gray-50 flex flex-col md:flex-row gap-4">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="p-8 border-b bg-gray-50 flex flex-col md:flex-row gap-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input type="text" placeholder="Buscar prato ou insumo..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#C8973A] bg-white" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <input type="text" placeholder="Buscar prato ou insumo..." className="w-full pl-12 pr-6 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#C8973A] bg-white shadow-sm" />
         </div>
-        <div className="flex gap-2">
-          <select className="text-xs font-bold border border-gray-200 rounded-lg px-3 py-2 bg-white outline-none">
+        <div className="flex gap-3">
+          <select className="text-xs font-bold border border-gray-200 rounded-xl px-4 py-3 bg-white outline-none shadow-sm">
             <option>Todas as Categorias</option>
             <option>Pratos Principais</option>
             <option>Entradas</option>
             <option>Sobremesas</option>
             <option>Bebidas</option>
           </select>
-          <button className="p-2 border border-gray-200 rounded-lg hover:bg-white text-gray-500"><Filter size={18}/></button>
+          <button className="p-3 border border-gray-200 rounded-xl hover:bg-white text-gray-500 shadow-sm"><Filter size={20}/></button>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
+          <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-widest">
             <tr>
-              <th className="px-6 py-4">Prato / Item</th>
-              <th className="px-6 py-4">Categoria</th>
-              <th className="px-6 py-4">Custo Unit.</th>
-              <th className="px-6 py-4">Preço Venda</th>
-              <th className="px-6 py-4">Margem</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Ações</th>
+              <th className="px-8 py-6">Prato / Item</th>
+              <th className="px-8 py-6">Categoria</th>
+              <th className="px-8 py-6">Custo Unit.</th>
+              <th className="px-8 py-6">Preço Venda</th>
+              <th className="px-8 py-6">Margem</th>
+              <th className="px-8 py-6">Status</th>
+              <th className="px-8 py-6">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -224,33 +227,30 @@ const FichasView = () => (
               { name: "Filé ao Poivre", cat: "Pratos Principais", cost: "R$ 28,50", price: "R$ 68,00", margin: "58%", status: "Atenção" },
             ].map((item, i) => (
               <tr key={i} className="hover:bg-gray-50 transition-colors group">
-                <td className="px-6 py-4">
-                  <div className="font-bold text-gray-800">{item.name}</div>
-                  <div className="text-[10px] text-gray-400">Última atualização: 2 dias atrás</div>
+                <td className="px-8 py-6">
+                  <div className="font-bold text-gray-800 text-base">{item.name}</div>
+                  <div className="text-xs text-gray-400 mt-1">Última atualização: 2 dias atrás</div>
                 </td>
-                <td className="px-6 py-4 text-gray-500 text-xs font-medium">{item.cat}</td>
-                <td className="px-6 py-4 font-mono text-xs">{item.cost}</td>
-                <td className="px-6 py-4 font-mono text-xs">{item.price}</td>
-                <td className="px-6 py-4">
+                <td className="px-8 py-6 text-gray-500 text-sm font-medium">{item.cat}</td>
+                <td className="px-8 py-6 font-mono text-sm">{item.cost}</td>
+                <td className="px-8 py-6 font-mono text-sm">{item.price}</td>
+                <td className="px-8 py-6">
                   <div className="flex items-center gap-2">
-                    <span className={`font-bold ${
+                    <span className={`font-bold text-base ${
                       item.margin >= '70%' ? 'text-emerald-600' : 
                       item.margin >= '60%' ? 'text-blue-600' : 'text-amber-600'
                     }`}>{item.margin}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${
+                <td className="px-8 py-6">
+                  <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full ${
                     item.status === 'Excelente' ? 'bg-emerald-100 text-emerald-700' :
                     item.status === 'Saudável' ? 'bg-blue-100 text-blue-700' :
                     'bg-amber-100 text-amber-700'
                   }`}>{item.status}</span>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-1.5 hover:bg-gray-200 rounded text-gray-500"><FileText size={14}/></button>
-                    <button className="p-1.5 hover:bg-gray-200 rounded text-[#1A237E]"><Plus size={14}/></button>
-                  </div>
+                <td className="px-8 py-6">
+                  <button className="p-2 text-gray-400 hover:text-[#1A237E] transition-colors"><ChevronRight size={20}/></button>
                 </td>
               </tr>
             ))}
@@ -365,33 +365,33 @@ const MarkupView = () => (
 );
 
 const DashboardView = () => (
-  <div className="space-y-6">
+  <div className="space-y-10">
     <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-serif font-bold text-[#1A237E]">Dashboard GastroMetrics</h2>
-      <div className="flex gap-2">
-        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-white border border-gray-200 rounded-lg text-[10px] font-bold text-gray-400">
-          <Clock size={12} /> ÚLTIMA ATUALIZAÇÃO: HOJE, 14:30
+      <h2 className="text-3xl font-serif font-bold text-[#1A237E]">Dashboard GastroMetrics</h2>
+      <div className="flex gap-3">
+        <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-400 shadow-sm">
+          <Clock size={14} /> ÚLTIMA ATUALIZAÇÃO: HOJE, 14:30
         </div>
-        <button className="p-2 bg-white border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition-colors"><Download size={18}/></button>
-        <button className="btn-primary py-2 px-4 text-sm">Atualizar Dados</button>
+        <button className="p-3 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"><Download size={20}/></button>
+        <button className="btn-primary py-3 px-6 text-sm shadow-lg">Atualizar Dados</button>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       {[
-        { label: "Faturamento Mensal", value: "R$ 67.420", trend: "+12.5%", positive: true, icon: <DollarSign size={20}/> },
-        { label: "Ticket Médio", value: "R$ 84,50", trend: "+3.2%", positive: true, icon: <Users size={20}/> },
-        { label: "CMV Real", value: "32.4%", trend: "-1.5%", positive: true, icon: <Calculator size={20}/> },
-        { label: "NPS", value: "75", trend: "+5", positive: true, icon: <MessageSquare size={20}/> },
+        { label: "Faturamento Mensal", value: "R$ 67.420", trend: "+12.5%", positive: true, icon: <DollarSign size={24}/> },
+        { label: "Ticket Médio", value: "R$ 84,50", trend: "+3.2%", positive: true, icon: <Users size={24}/> },
+        { label: "CMV Real", value: "32.4%", trend: "-1.5%", positive: true, icon: <Calculator size={24}/> },
+        { label: "NPS", value: "75", trend: "+5", positive: true, icon: <MessageSquare size={24}/> },
       ].map((kpi, i) => (
-        <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-3 text-gray-100 group-hover:text-[#C8973A]/10 transition-colors">
+        <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group hover:shadow-md transition-shadow">
+          <div className="absolute top-0 right-0 p-4 text-gray-100 group-hover:text-[#C8973A]/20 transition-colors">
             {kpi.icon}
           </div>
-          <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{kpi.label}</h4>
-          <div className="text-2xl font-black text-[#1A237E] mb-1">{kpi.value}</div>
-          <div className={`text-[10px] font-bold flex items-center gap-1 ${kpi.positive ? 'text-emerald-600' : 'text-red-500'}`}>
-            {kpi.positive ? <ArrowUpRight size={12}/> : <ArrowDownRight size={12}/>}
+          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">{kpi.label}</h4>
+          <div className="text-3xl font-black text-[#1A237E] mb-2">{kpi.value}</div>
+          <div className={`text-xs font-bold flex items-center gap-1 ${kpi.positive ? 'text-emerald-600' : 'text-red-500'}`}>
+            {kpi.positive ? <ArrowUpRight size={14}/> : <ArrowDownRight size={14}/>}
             {kpi.trend} <span className="text-gray-400 font-normal ml-1">vs mês ant.</span>
           </div>
         </div>
@@ -560,64 +560,64 @@ const DashboardView = () => (
 );
 
 const EngenhariaView = () => (
-  <div className="space-y-6">
-    <h2 className="text-2xl font-serif font-bold text-[#1A237E]">Engenharia de Cardápio Digital</h2>
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 className="font-bold text-sm mb-6">Matriz de Miller (Popularidade x Rentabilidade)</h3>
-        <div className="relative h-[400px] border-l-2 border-b-2 border-gray-200 ml-8 mb-8">
-          <div className="absolute -left-10 top-1/2 -rotate-90 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Popularidade</div>
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rentabilidade</div>
+  <div className="space-y-10">
+    <h2 className="text-3xl font-serif font-bold text-[#1A237E]">Engenharia de Cardápio Digital</h2>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+        <h3 className="font-bold text-lg mb-8 text-[#1A237E]">Matriz de Miller (Popularidade x Rentabilidade)</h3>
+        <div className="relative h-[450px] border-l-2 border-b-2 border-gray-200 ml-10 mb-10">
+          <div className="absolute -left-12 top-1/2 -rotate-90 text-xs font-bold text-gray-400 uppercase tracking-widest">Popularidade</div>
+          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-xs font-bold text-gray-400 uppercase tracking-widest">Rentabilidade</div>
           
           {/* Quadrants */}
           <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
             <div className="border-r border-b border-gray-100 bg-blue-50/30 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-blue-300 uppercase">Burros de Carga</span>
+              <span className="text-xs font-bold text-blue-300 uppercase tracking-widest">Burros de Carga</span>
             </div>
             <div className="border-b border-gray-100 bg-emerald-50/30 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-emerald-300 uppercase">Estrelas</span>
+              <span className="text-xs font-bold text-emerald-300 uppercase tracking-widest">Estrelas</span>
             </div>
             <div className="border-r border-gray-100 bg-gray-50/30 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-gray-300 uppercase">Cães</span>
+              <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">Cães</span>
             </div>
             <div className="bg-amber-50/30 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-amber-300 uppercase">Quebra-Cabeças</span>
+              <span className="text-xs font-bold text-amber-300 uppercase tracking-widest">Quebra-Cabeças</span>
             </div>
           </div>
 
           {/* Points */}
-          <div className="absolute top-[20%] right-[20%] w-4 h-4 bg-emerald-500 rounded-full shadow-lg cursor-pointer group">
-            <div className="hidden group-hover:block absolute bottom-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] p-2 rounded whitespace-nowrap z-10">
+          <div className="absolute top-[20%] right-[20%] w-6 h-6 bg-emerald-500 rounded-full shadow-lg cursor-pointer group border-2 border-white">
+            <div className="hidden group-hover:block absolute bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs p-3 rounded-xl shadow-xl whitespace-nowrap z-10">
               Burger Especial (Estrela)
             </div>
           </div>
-          <div className="absolute top-[30%] left-[25%] w-4 h-4 bg-blue-500 rounded-full shadow-lg cursor-pointer group">
-            <div className="hidden group-hover:block absolute bottom-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] p-2 rounded whitespace-nowrap z-10">
+          <div className="absolute top-[30%] left-[25%] w-6 h-6 bg-blue-500 rounded-full shadow-lg cursor-pointer group border-2 border-white">
+            <div className="hidden group-hover:block absolute bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs p-3 rounded-xl shadow-xl whitespace-nowrap z-10">
               Batata Frita (Burro de Carga)
             </div>
           </div>
-          <div className="absolute bottom-[20%] right-[30%] w-4 h-4 bg-amber-500 rounded-full shadow-lg cursor-pointer group">
-            <div className="hidden group-hover:block absolute bottom-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] p-2 rounded whitespace-nowrap z-10">
+          <div className="absolute bottom-[20%] right-[30%] w-6 h-6 bg-amber-500 rounded-full shadow-lg cursor-pointer group border-2 border-white">
+            <div className="hidden group-hover:block absolute bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs p-3 rounded-xl shadow-xl whitespace-nowrap z-10">
               Vinho Reserva (Quebra-Cabeça)
             </div>
           </div>
         </div>
       </div>
-      <div className="space-y-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="font-bold text-sm mb-4">Recomendações Estratégicas</h3>
-          <div className="space-y-4">
-            <div className="p-4 border-l-4 border-emerald-500 bg-emerald-50 rounded-r-lg">
-              <h5 className="text-xs font-bold text-emerald-800">Manter e Promover (Estrelas)</h5>
-              <p className="text-[10px] text-emerald-700 mt-1">O item "Burger Especial" tem alta margem e alta saída. Mantenha a qualidade e use em fotos de marketing.</p>
+      <div className="space-y-10">
+        <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+          <h3 className="font-bold text-lg mb-8 text-[#1A237E]">Recomendações Estratégicas</h3>
+          <div className="space-y-6">
+            <div className="p-6 border-l-4 border-emerald-500 bg-emerald-50 rounded-r-2xl">
+              <h5 className="text-sm font-bold text-emerald-800 mb-2">Manter e Promover (Estrelas)</h5>
+              <p className="text-xs text-emerald-700 leading-relaxed">O item "Burger Especial" tem alta margem e alta saída. Mantenha a qualidade e use em fotos de marketing.</p>
             </div>
-            <div className="p-4 border-l-4 border-blue-500 bg-blue-50 rounded-r-lg">
-              <h5 className="text-xs font-bold text-blue-800">Reajustar Preço (Burros de Carga)</h5>
-              <p className="text-[10px] text-blue-700 mt-1">"Batata Frita" vende muito mas tem margem baixa. Tente um pequeno reajuste de R$ 1,00 ou reduza a porção sutilmente.</p>
+            <div className="p-6 border-l-4 border-blue-500 bg-blue-50 rounded-r-2xl">
+              <h5 className="text-sm font-bold text-blue-800 mb-2">Reajustar Preço (Burros de Carga)</h5>
+              <p className="text-xs text-blue-700 leading-relaxed">"Batata Frita" vende muito mas tem margem baixa. Tente um pequeno reajuste de R$ 1,00 ou reduza a porção sutilmente.</p>
             </div>
-            <div className="p-4 border-l-4 border-amber-500 bg-amber-50 rounded-r-lg">
-              <h5 className="text-xs font-bold text-amber-800">Aumentar Vendas (Quebra-Cabeças)</h5>
-              <p className="text-[10px] text-amber-700 mt-1">"Vinho Reserva" tem margem excelente mas sai pouco. Treine os garçons para oferecerem este item ativamente.</p>
+            <div className="p-6 border-l-4 border-amber-500 bg-amber-50 rounded-r-2xl">
+              <h5 className="text-sm font-bold text-amber-800 mb-2">Aumentar Vendas (Quebra-Cabeças)</h5>
+              <p className="text-xs text-amber-700 leading-relaxed">"Vinho Reserva" tem margem excelente mas sai pouco. Treine os garçons para oferecerem este item ativamente.</p>
             </div>
           </div>
         </div>
@@ -627,51 +627,51 @@ const EngenhariaView = () => (
 );
 
 const EstoqueView = () => (
-  <div className="space-y-6">
+  <div className="space-y-10">
     <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-serif font-bold text-[#1A237E]">Gestão de Estoque & Curva ABC</h2>
-      <div className="flex gap-2">
-        <button className="p-2 bg-white border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition-colors"><Download size={18}/></button>
-        <button className="btn-primary py-2 px-4 text-sm flex items-center gap-2"><Plus size={16}/> Registrar Entrada</button>
+      <h2 className="text-3xl font-serif font-bold text-[#1A237E]">Gestão de Estoque & Curva ABC</h2>
+      <div className="flex gap-3">
+        <button className="p-3 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"><Download size={20}/></button>
+        <button className="btn-primary py-3 px-6 text-sm flex items-center gap-2 shadow-lg"><Plus size={18}/> Registrar Entrada</button>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       {[
         { label: "Valor em Estoque", value: "R$ 20.350", sub: "Total", color: "text-[#1A237E]" },
         { label: "Giro de Estoque", value: "4.2x", sub: "/mês", color: "text-emerald-600" },
         { label: "Itens Abaixo do Mínimo", value: "8", sub: "Ação Urgente", color: "text-red-500" },
         { label: "Perda Estimada", value: "1.2%", sub: "Este mês", color: "text-amber-600" },
       ].map((stat, i) => (
-        <div key={i} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{stat.label}</h4>
-          <div className="flex items-baseline gap-1">
-            <span className={`text-2xl font-black ${stat.color}`}>{stat.value}</span>
-            <span className="text-[10px] text-gray-400 font-bold">{stat.sub}</span>
+        <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">{stat.label}</h4>
+          <div className="flex items-baseline gap-2">
+            <span className={`text-3xl font-black ${stat.color}`}>{stat.value}</span>
+            <span className="text-xs text-gray-400 font-bold">{stat.sub}</span>
           </div>
         </div>
       ))}
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 border-b bg-gray-50 flex gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+      <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b bg-gray-50 flex gap-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input type="text" placeholder="Buscar insumo..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#C8973A] bg-white" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input type="text" placeholder="Buscar insumo..." className="w-full pl-12 pr-6 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#C8973A] bg-white shadow-sm" />
           </div>
-          <button className="p-2 border border-gray-200 rounded-lg hover:bg-white text-gray-500"><Filter size={18}/></button>
+          <button className="p-3 border border-gray-200 rounded-xl hover:bg-white text-gray-500 shadow-sm"><Filter size={20}/></button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
+            <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] font-bold tracking-widest">
               <tr>
-                <th className="px-6 py-4">Insumo</th>
-                <th className="px-6 py-4">Estoque Atual</th>
-                <th className="px-6 py-4">Unidade</th>
-                <th className="px-6 py-4">Custo Médio</th>
-                <th className="px-6 py-4">Curva ABC</th>
-                <th className="px-6 py-4">Status</th>
+                <th className="px-8 py-6">Insumo</th>
+                <th className="px-8 py-6">Estoque Atual</th>
+                <th className="px-8 py-6">Unidade</th>
+                <th className="px-8 py-6">Custo Médio</th>
+                <th className="px-8 py-6">Curva ABC</th>
+                <th className="px-8 py-6">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -683,23 +683,23 @@ const EstoqueView = () => (
                 { name: "Camarão GG", stock: "8.2", unit: "kg", cost: "R$ 89,00", curve: "A", status: "Normal" },
               ].map((item, i) => (
                 <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-bold text-gray-800">{item.name}</td>
-                  <td className="px-6 py-4 font-mono">{item.stock}</td>
-                  <td className="px-6 py-4 text-gray-500">{item.unit}</td>
-                  <td className="px-6 py-4 font-mono text-xs">{item.cost}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded text-[10px] font-bold ${
+                  <td className="px-8 py-6 font-bold text-gray-800">{item.name}</td>
+                  <td className="px-8 py-6 font-mono text-lg">{item.stock}</td>
+                  <td className="px-8 py-6 text-gray-500">{item.unit}</td>
+                  <td className="px-8 py-6 font-mono text-sm">{item.cost}</td>
+                  <td className="px-8 py-6">
+                    <span className={`px-3 py-1.5 rounded-lg text-[10px] font-bold ${
                       item.curve === 'A' ? 'bg-red-100 text-red-700' : 
                       item.curve === 'B' ? 'bg-amber-100 text-amber-700' : 
                       'bg-gray-100 text-gray-700'
                     }`}>Classe {item.curve}</span>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className={`flex items-center gap-1 text-[10px] font-bold ${
+                  <td className="px-8 py-6">
+                    <span className={`flex items-center gap-2 text-xs font-bold ${
                       item.status === 'Crítico' ? 'text-red-600' : 
                       item.status === 'Baixo' ? 'text-amber-600' : 'text-emerald-600'
                     }`}>
-                      <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                      <div className={`w-2 h-2 rounded-full animate-pulse ${
                         item.status === 'Crítico' ? 'bg-red-600' : 
                         item.status === 'Baixo' ? 'bg-amber-600' : 'bg-emerald-600'
                       }`}></div>
@@ -712,17 +712,17 @@ const EstoqueView = () => (
           </table>
         </div>
       </div>
-      <div className="space-y-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="font-bold text-sm mb-6">Distribuição ABC (Valor)</h3>
-          <div className="h-[200px]">
+      <div className="space-y-10">
+        <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+          <h3 className="font-bold text-lg mb-8 text-[#1A237E]">Distribuição ABC (Valor)</h3>
+          <div className="h-[250px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={abcData}
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={8}
                   dataKey="value"
                 >
                   {abcData.map((entry, index) => (
@@ -733,30 +733,30 @@ const EstoqueView = () => (
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-4 space-y-3">
+          <div className="mt-8 space-y-4">
             {[
               { label: 'Classe A', desc: '70% do valor investido', value: 'R$ 14.200', color: '#1A237E' },
               { label: 'Classe B', desc: '20% do valor investido', value: 'R$ 4.100', color: '#C8973A' },
               { label: 'Classe C', desc: '10% do valor investido', value: 'R$ 2.050', color: '#2E7D32' },
             ].map((item, i) => (
-              <div key={i} className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
+              <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
                   <div>
-                    <div className="text-[10px] font-bold text-gray-800">{item.label}</div>
-                    <div className="text-[8px] text-gray-400">{item.desc}</div>
+                    <div className="text-xs font-bold text-gray-800">{item.label}</div>
+                    <div className="text-[10px] text-gray-400">{item.desc}</div>
                   </div>
                 </div>
-                <span className="text-xs font-bold text-gray-700">{item.value}</span>
+                <span className="text-sm font-bold text-[#1A237E]">{item.value}</span>
               </div>
             ))}
           </div>
         </div>
-        <div className="bg-amber-50 p-4 rounded-xl border border-amber-100">
-          <h4 className="text-xs font-bold text-amber-800 mb-2 flex items-center gap-2">
-            <AlertTriangle size={14}/> Sugestão de Compra
+        <div className="bg-amber-50 p-8 rounded-2xl border border-amber-100">
+          <h4 className="text-sm font-bold text-amber-800 mb-3 flex items-center gap-2">
+            <AlertTriangle size={18}/> Sugestão de Compra
           </h4>
-          <p className="text-[10px] text-amber-700 leading-relaxed">
+          <p className="text-xs text-amber-700 leading-relaxed">
             Baseado no seu giro médio, você precisará repor <strong>15kg de Filé Mignon</strong> e <strong>10kg de Arroz</strong> nos próximos 3 dias para evitar ruptura.
           </p>
         </div>
@@ -766,82 +766,82 @@ const EstoqueView = () => (
 );
 
 const DREView = () => (
-  <div className="space-y-6">
+  <div className="space-y-10">
     <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-serif font-bold text-[#1A237E]">DRE Gerencial Mensal</h2>
-      <div className="flex gap-2">
-        <select className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C8973A] font-bold text-gray-600">
+      <h2 className="text-3xl font-serif font-bold text-[#1A237E]">DRE Gerencial Mensal</h2>
+      <div className="flex gap-3">
+        <select className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#C8973A] font-bold text-gray-600 shadow-sm">
           <option>Março 2024</option>
           <option>Fevereiro 2024</option>
           <option>Janeiro 2024</option>
         </select>
-        <button className="btn-primary py-2 px-4 text-sm flex items-center gap-2"><Download size={16}/> Exportar PDF</button>
+        <button className="btn-primary py-3 px-6 text-sm flex items-center gap-2 shadow-lg"><Download size={18}/> Exportar PDF</button>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-left text-sm">
-          <thead className="bg-[#1A237E] text-white uppercase text-[10px] font-bold tracking-wider">
+          <thead className="bg-[#1A237E] text-white uppercase text-[10px] font-bold tracking-widest">
             <tr>
-              <th className="px-6 py-4">Descrição da Conta</th>
-              <th className="px-6 py-4 text-right">Valor (R$)</th>
-              <th className="px-6 py-4 text-right">% Faturamento</th>
+              <th className="px-8 py-6">Descrição da Conta</th>
+              <th className="px-8 py-6 text-right">Valor (R$)</th>
+              <th className="px-8 py-6 text-right">% Faturamento</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             <tr className="bg-blue-50/50 font-black text-[#1A237E]">
-              <td className="px-6 py-4">RECEITA BRUTA OPERACIONAL</td>
-              <td className="px-6 py-4 text-right">67.000,00</td>
-              <td className="px-6 py-4 text-right">100%</td>
+              <td className="px-8 py-6">RECEITA BRUTA OPERACIONAL</td>
+              <td className="px-8 py-6 text-right">67.000,00</td>
+              <td className="px-8 py-6 text-right">100%</td>
             </tr>
             <tr>
-              <td className="px-6 py-4 pl-10 text-gray-500">(-) Impostos e Taxas</td>
-              <td className="px-6 py-4 text-right text-red-500">(6.365,00)</td>
-              <td className="px-6 py-4 text-right">9.5%</td>
+              <td className="px-8 py-6 pl-14 text-gray-500">(-) Impostos e Taxas</td>
+              <td className="px-8 py-6 text-right text-red-500">(6.365,00)</td>
+              <td className="px-8 py-6 text-right">9.5%</td>
             </tr>
             <tr className="bg-gray-50 font-bold">
-              <td className="px-6 py-4">RECEITA LÍQUIDA</td>
-              <td className="px-6 py-4 text-right">60.635,00</td>
-              <td className="px-6 py-4 text-right">90.5%</td>
+              <td className="px-8 py-6">RECEITA LÍQUIDA</td>
+              <td className="px-8 py-6 text-right">60.635,00</td>
+              <td className="px-8 py-6 text-right">90.5%</td>
             </tr>
             <tr>
-              <td className="px-6 py-4 pl-10 text-gray-500">(-) CMV (Custo Mercadoria Vendida)</td>
-              <td className="px-6 py-4 text-right text-red-500">(21.708,00)</td>
-              <td className="px-6 py-4 text-right">32.4%</td>
+              <td className="px-8 py-6 pl-14 text-gray-500">(-) CMV (Custo Mercadoria Vendida)</td>
+              <td className="px-8 py-6 text-right text-red-500">(21.708,00)</td>
+              <td className="px-8 py-6 text-right">32.4%</td>
             </tr>
             <tr className="bg-emerald-50/30 font-bold text-emerald-700">
-              <td className="px-6 py-4">MARGEM DE CONTRIBUIÇÃO</td>
-              <td className="px-6 py-4 text-right">38.927,00</td>
-              <td className="px-6 py-4 text-right">58.1%</td>
+              <td className="px-8 py-6">MARGEM DE CONTRIBUIÇÃO</td>
+              <td className="px-8 py-6 text-right">38.927,00</td>
+              <td className="px-8 py-6 text-right">58.1%</td>
             </tr>
             <tr>
-              <td className="px-6 py-4 pl-10 text-gray-500">(-) Custos Fixos (Aluguel, Energia, etc)</td>
-              <td className="px-6 py-4 text-right text-red-500">(12.500,00)</td>
-              <td className="px-6 py-4 text-right">18.6%</td>
+              <td className="px-8 py-6 pl-14 text-gray-500">(-) Custos Fixos (Aluguel, Energia, etc)</td>
+              <td className="px-8 py-6 text-right text-red-500">(12.500,00)</td>
+              <td className="px-8 py-6 text-right">18.6%</td>
             </tr>
             <tr>
-              <td className="px-6 py-4 pl-10 text-gray-500">(-) Folha de Pagamento</td>
-              <td className="px-6 py-4 text-right text-red-500">(14.000,00)</td>
-              <td className="px-6 py-4 text-right">20.9%</td>
+              <td className="px-8 py-6 pl-14 text-gray-500">(-) Folha de Pagamento</td>
+              <td className="px-8 py-6 text-right text-red-500">(14.000,00)</td>
+              <td className="px-8 py-6 text-right">20.9%</td>
             </tr>
             <tr>
-              <td className="px-6 py-4 pl-10 text-gray-500">(-) Outras Despesas Operacionais</td>
-              <td className="px-6 py-4 text-right text-red-500">(3.200,00)</td>
-              <td className="px-6 py-4 text-right">4.8%</td>
+              <td className="px-8 py-6 pl-14 text-gray-500">(-) Outras Despesas Operacionais</td>
+              <td className="px-8 py-6 text-right text-red-500">(3.200,00)</td>
+              <td className="px-8 py-6 text-right">4.8%</td>
             </tr>
-            <tr className="bg-[#1A237E] font-black text-white text-lg">
-              <td className="px-6 py-6">LUCRO LÍQUIDO (EBITDA)</td>
-              <td className="px-6 py-6 text-right">R$ 9.227,00</td>
-              <td className="px-6 py-6 text-right">13.8%</td>
+            <tr className="bg-[#1A237E] font-black text-white text-xl">
+              <td className="px-8 py-8">LUCRO LÍQUIDO (EBITDA)</td>
+              <td className="px-8 py-8 text-right">R$ 9.227,00</td>
+              <td className="px-8 py-8 text-right">13.8%</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div className="space-y-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="font-bold text-sm mb-6">Análise de Lucratividade</h3>
-          <div className="h-[250px]">
+      <div className="space-y-10">
+        <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+          <h3 className="font-bold text-lg mb-8 text-[#1A237E]">Análise de Lucratividade</h3>
+          <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={[
                 { name: 'Jan', lucro: 12 },
@@ -963,36 +963,36 @@ const KPIView = () => (
 );
 
 const EscalaView = () => (
-  <div className="space-y-6">
+  <div className="space-y-10">
     <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-serif font-bold text-[#1A237E]">Escala de Equipe Automatizada</h2>
-      <div className="flex gap-2">
-        <button className="p-2 bg-white border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 transition-colors"><Download size={18}/></button>
-        <button className="btn-primary py-2 px-4 text-sm flex items-center gap-2"><Plus size={16}/> Nova Escala</button>
+      <h2 className="text-3xl font-serif font-bold text-[#1A237E]">Escala de Equipe Automatizada</h2>
+      <div className="flex gap-3">
+        <button className="p-3 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors shadow-sm"><Download size={20}/></button>
+        <button className="btn-primary py-3 px-6 text-sm flex items-center gap-2 shadow-lg"><Plus size={18}/> Nova Escala</button>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
-          <div className="flex gap-4">
-            <button className="text-sm font-bold text-[#1A237E]">Semana Atual</button>
-            <button className="text-sm text-gray-400 hover:text-gray-600 transition-colors">Próxima Semana</button>
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+      <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b bg-gray-50 flex justify-between items-center">
+          <div className="flex gap-6">
+            <button className="text-sm font-bold text-[#1A237E] border-b-2 border-[#1A237E] pb-1">Semana Atual</button>
+            <button className="text-sm text-gray-400 hover:text-gray-600 transition-colors pb-1">Próxima Semana</button>
           </div>
-          <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">08 Abr - 14 Abr, 2026</div>
+          <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">08 Abr - 14 Abr, 2026</div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-gray-50 text-gray-400 uppercase font-bold">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-gray-50 text-gray-400 uppercase text-[10px] font-bold tracking-widest">
               <tr>
-                <th className="px-4 py-3 border-r">Colaborador</th>
-                <th className="px-4 py-3">Seg</th>
-                <th className="px-4 py-3">Ter</th>
-                <th className="px-4 py-3">Qua</th>
-                <th className="px-4 py-3">Qui</th>
-                <th className="px-4 py-3">Sex</th>
-                <th className="px-4 py-3">Sáb</th>
-                <th className="px-4 py-3">Dom</th>
+                <th className="px-6 py-4 border-r">Colaborador</th>
+                <th className="px-4 py-4">Seg</th>
+                <th className="px-4 py-4">Ter</th>
+                <th className="px-4 py-4">Qua</th>
+                <th className="px-4 py-4">Qui</th>
+                <th className="px-4 py-4">Sex</th>
+                <th className="px-4 py-4">Sáb</th>
+                <th className="px-4 py-4">Dom</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -1004,16 +1004,16 @@ const EscalaView = () => (
                 { name: "Ricardo Oliveira", role: "Cozinha", shifts: ["16-00", "FOLGA", "16-00", "16-00", "08-16", "08-16", "08-16"] },
               ].map((staff, i) => (
                 <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-4 border-r min-w-[140px]">
-                    <div className="font-bold text-gray-800">{staff.name}</div>
-                    <div className="text-[10px] text-gray-400 uppercase font-bold">{staff.role}</div>
+                  <td className="px-6 py-6 border-r min-w-[180px]">
+                    <div className="font-bold text-gray-800 text-base">{staff.name}</div>
+                    <div className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{staff.role}</div>
                   </td>
                   {staff.shifts.map((shift, idx) => (
-                    <td key={idx} className="px-1 py-4">
-                      <div className={`p-2 rounded text-[10px] text-center font-bold transition-all cursor-pointer hover:scale-105 ${
+                    <td key={idx} className="px-2 py-6">
+                      <div className={`p-3 rounded-xl text-[10px] text-center font-bold transition-all cursor-pointer hover:scale-105 shadow-sm ${
                         shift === 'FOLGA' 
-                          ? 'bg-gray-100 text-gray-400' 
-                          : 'bg-blue-50 text-blue-700 border border-blue-100 shadow-sm'
+                          ? 'bg-gray-100 text-gray-400 border border-gray-200' 
+                          : 'bg-blue-50 text-blue-700 border border-blue-100'
                       }`}>
                         {shift}
                       </div>
@@ -1025,27 +1025,27 @@ const EscalaView = () => (
           </table>
         </div>
       </div>
-      <div className="space-y-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="font-bold text-sm mb-4">Resumo da Semana</h3>
-          <div className="space-y-4">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-[10px] text-gray-400 font-bold uppercase mb-1">Total de Horas</div>
-              <div className="text-xl font-black text-[#1A237E]">168h</div>
+      <div className="space-y-10">
+        <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+          <h3 className="font-bold text-lg mb-8 text-[#1A237E]">Resumo da Semana</h3>
+          <div className="space-y-6">
+            <div className="p-5 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Total de Horas</div>
+              <div className="text-3xl font-black text-[#1A237E]">168h</div>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <div className="text-[10px] text-gray-400 font-bold uppercase mb-1">Custo Estimado</div>
-              <div className="text-xl font-black text-emerald-600">R$ 3.420</div>
+            <div className="p-5 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Custo Estimado</div>
+              <div className="text-3xl font-black text-emerald-600">R$ 3.420</div>
             </div>
-            <div className="p-3 bg-red-50 border border-red-100 rounded-lg">
-              <div className="flex items-center gap-2 text-red-600 mb-1">
-                <AlertTriangle size={14}/>
-                <span className="text-[10px] font-bold uppercase">Conflitos</span>
+            <div className="p-5 bg-red-50 border border-red-100 rounded-xl">
+              <div className="flex items-center gap-2 text-red-600 mb-2">
+                <AlertTriangle size={18}/>
+                <span className="text-xs font-bold uppercase tracking-widest">Conflitos</span>
               </div>
-              <p className="text-[10px] text-red-700">2 colaboradores com mais de 44h semanais detectados.</p>
+              <p className="text-xs text-red-700 leading-relaxed">2 colaboradores com mais de 44h semanais detectados.</p>
             </div>
           </div>
-          <button className="w-full mt-6 py-2 bg-[#1A237E] text-white font-bold rounded-lg text-xs shadow-lg">
+          <button className="w-full mt-10 py-4 bg-[#1A237E] text-white font-bold rounded-xl text-sm shadow-lg hover:bg-[#283593] transition-colors">
             Otimizar Escala com IA
           </button>
         </div>
@@ -1055,95 +1055,95 @@ const EscalaView = () => (
 );
 
 const ComunidadeView = () => (
-  <div className="space-y-6">
+  <div className="space-y-10">
     <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-serif font-bold text-[#1A237E]">Suporte da Comunidade & Recursos</h2>
-      <button className="btn-primary py-2 px-4 text-sm flex items-center gap-2"><Plus size={16}/> Novo Tópico</button>
+      <h2 className="text-3xl font-serif font-bold text-[#1A237E]">Suporte da Comunidade & Recursos</h2>
+      <button className="btn-primary py-3 px-6 text-sm flex items-center gap-2 shadow-lg"><Plus size={18}/> Novo Tópico</button>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2 space-y-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-bold text-sm">Discussões em Alta</h3>
-            <div className="flex gap-2">
-              <button className="text-[10px] font-bold px-3 py-1 bg-gray-100 rounded-full text-gray-500">Recentes</button>
-              <button className="text-[10px] font-bold px-3 py-1 bg-[#1A237E] rounded-full text-white">Populares</button>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="md:col-span-2 space-y-10">
+        <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center mb-10">
+            <h3 className="font-bold text-lg text-[#1A237E]">Discussões em Alta</h3>
+            <div className="flex gap-3">
+              <button className="text-xs font-bold px-4 py-2 bg-gray-100 rounded-xl text-gray-500 hover:bg-gray-200 transition-colors">Recentes</button>
+              <button className="text-xs font-bold px-4 py-2 bg-[#1A237E] rounded-xl text-white shadow-md">Populares</button>
             </div>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {[
               { title: "Como vocês estão lidando com a alta do preço do azeite?", author: "João - Trattoria Bella", replies: 12, time: "2h atrás", tags: ["Custos", "Fornecedores"] },
               { title: "Dica: Planilha de escala 12x36 atualizada", author: "LC Consultoria", replies: 45, time: "5h atrás", tags: ["Gestão", "RH"] },
               { title: "Dúvida sobre tributação no Simples Nacional", author: "Maria - Café Central", replies: 8, time: "1d atrás", tags: ["Financeiro"] },
               { title: "Estratégias para aumentar o Ticket Médio no jantar", author: "Pedro - Bistrô 22", replies: 24, time: "2d atrás", tags: ["Vendas"] },
             ].map((post, i) => (
-              <div key={i} className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl cursor-pointer transition-all border border-gray-100 hover:border-[#C8973A]/30 group">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#C8973A]/10 group-hover:text-[#C8973A] transition-colors">
-                    <MessageSquare size={20}/>
+              <div key={i} className="flex items-center justify-between p-6 hover:bg-gray-50 rounded-2xl cursor-pointer transition-all border border-gray-100 hover:border-[#C8973A]/30 group shadow-sm hover:shadow-md">
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#C8973A]/10 group-hover:text-[#C8973A] transition-colors border border-gray-100">
+                    <MessageSquare size={24}/>
                   </div>
                   <div>
-                    <h5 className="text-sm font-bold text-gray-800 group-hover:text-[#1A237E] transition-colors">{post.title}</h5>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-gray-400">Postado por {post.author} • {post.time}</span>
-                      <div className="flex gap-1">
+                    <h5 className="text-base font-bold text-gray-800 group-hover:text-[#1A237E] transition-colors mb-1">{post.title}</h5>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-400">Postado por <span className="font-bold text-gray-500">{post.author}</span> • {post.time}</span>
+                      <div className="flex gap-2">
                         {post.tags.map((tag, idx) => (
-                          <span key={idx} className="text-[8px] font-bold px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded uppercase">{tag}</span>
+                          <span key={idx} className="text-[10px] font-bold px-2 py-0.5 bg-gray-100 text-gray-400 rounded-lg uppercase tracking-widest">{tag}</span>
                         ))}
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="text-right hidden sm:block">
-                  <div className="text-sm font-black text-[#1A237E]">{post.replies}</div>
-                  <div className="text-[8px] uppercase text-gray-400 font-bold">Respostas</div>
+                  <div className="text-xl font-black text-[#1A237E]">{post.replies}</div>
+                  <div className="text-[10px] uppercase text-gray-400 font-bold tracking-widest">Respostas</div>
                 </div>
               </div>
             ))}
           </div>
-          <button className="w-full mt-6 py-3 text-xs font-bold text-gray-400 hover:text-[#1A237E] transition-colors uppercase tracking-widest">
+          <button className="w-full mt-10 py-4 text-sm font-bold text-gray-400 hover:text-[#1A237E] transition-colors uppercase tracking-widest border-t border-gray-50 pt-8">
             Ver Todas as Discussões
           </button>
         </div>
       </div>
-      <div className="space-y-6">
-        <div className="bg-[#1A237E] p-8 rounded-2xl text-white shadow-xl relative overflow-hidden group">
-          <div className="absolute -right-6 -bottom-6 opacity-10 group-hover:scale-110 transition-transform duration-500">
-            <Users size={120} />
+      <div className="space-y-10">
+        <div className="bg-[#1A237E] p-10 rounded-3xl text-white shadow-2xl relative overflow-hidden group">
+          <div className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+            <Users size={160} />
           </div>
-          <h3 className="font-bold text-lg mb-4 flex items-center gap-2 relative z-10">
-            <Sparkles size={20} className="text-[#C8973A]"/> Mentoria VIP
+          <h3 className="font-bold text-xl mb-6 flex items-center gap-3 relative z-10">
+            <Sparkles size={24} className="text-[#C8973A]"/> Mentoria VIP
           </h3>
-          <p className="text-xs text-white/70 leading-relaxed mb-6 relative z-10">
-            Acesso exclusivo a mentorias semanais com Lienys Carvalho e convidados.
+          <p className="text-sm text-white/70 leading-relaxed mb-8 relative z-10">
+            Acesso exclusivo a mentorias semanais com Lienys Carvalho e convidados do mercado gastronômico.
           </p>
-          <div className="p-4 bg-white/10 rounded-xl border border-white/20 mb-6 relative z-10 backdrop-blur-sm">
-            <div className="text-[10px] font-bold uppercase text-[#C8973A] mb-1">Próxima Call ao Vivo</div>
-            <div className="text-sm font-bold">Quinta-feira, às 15h</div>
-            <div className="text-[10px] opacity-60">Tema: Engenharia de Cardápio Lucrativa</div>
+          <div className="p-6 bg-white/10 rounded-2xl border border-white/20 mb-8 relative z-10 backdrop-blur-md">
+            <div className="text-[10px] font-bold uppercase text-[#C8973A] tracking-widest mb-2">Próxima Call ao Vivo</div>
+            <div className="text-lg font-bold mb-1">Quinta-feira, às 15h</div>
+            <div className="text-xs opacity-60 italic">Tema: Engenharia de Cardápio Lucrativa</div>
           </div>
-          <button className="w-full py-3 bg-[#C8973A] text-[#1A237E] font-black rounded-xl text-xs shadow-lg hover:bg-[#e0aa3e] transition-colors relative z-10">
+          <button className="w-full py-4 bg-[#C8973A] text-[#1A237E] font-black rounded-2xl text-sm shadow-xl hover:bg-[#e0aa3e] transition-all transform hover:scale-[1.02] relative z-10 uppercase tracking-widest">
             ENTRAR NO GRUPO VIP
           </button>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="font-bold text-sm mb-4 flex items-center gap-2">
-            <FileText size={18} className="text-[#C8973A]"/> Biblioteca de Recursos
+        <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100">
+          <h3 className="font-bold text-lg mb-8 flex items-center gap-3 text-[#1A237E]">
+            <FileText size={22} className="text-[#C8973A]"/> Biblioteca
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { title: "Guia de Boas Práticas (ANVISA)", type: "PDF", size: "2.4MB" },
               { title: "Modelo de Contrato Freelancer", type: "DOCX", size: "1.1MB" },
               { title: "Checklist Abertura/Fechamento", type: "XLSX", size: "0.8MB" },
               { title: "Planilha de Inventário Mensal", type: "XLSX", size: "1.5MB" },
             ].map((file, i) => (
-              <a key={i} href="#" className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="text-gray-400 group-hover:text-[#1A237E] transition-colors"><FileText size={16}/></div>
-                  <div className="text-[11px] text-gray-600 font-medium group-hover:text-gray-900">{file.title}</div>
+              <a key={i} href="#" className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-all group border border-transparent hover:border-gray-100 shadow-sm hover:shadow-md">
+                <div className="flex items-center gap-4">
+                  <div className="text-gray-400 group-hover:text-[#1A237E] transition-colors"><FileText size={20}/></div>
+                  <div className="text-sm text-gray-600 font-medium group-hover:text-[#1A237E]">{file.title}</div>
                 </div>
-                <div className="text-[9px] font-bold text-gray-300 uppercase">{file.type}</div>
+                <div className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{file.type}</div>
               </a>
             ))}
           </div>
@@ -1156,76 +1156,80 @@ const ComunidadeView = () => (
 // --- Main Platform Shell ---
 
 const ManualView = () => (
-  <div className="space-y-8 pb-12">
-    <div className="bg-[#1A237E] p-12 rounded-3xl text-white relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#C8973A] opacity-10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+  <div className="space-y-12 pb-16">
+    <div className="bg-gradient-to-br from-[#1A237E] to-[#283593] p-16 rounded-[2.5rem] text-white relative overflow-hidden shadow-2xl">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#C8973A] opacity-10 rounded-full -mr-48 -mt-48 blur-[100px]"></div>
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-400 opacity-10 rounded-full -ml-32 -mb-32 blur-[80px]"></div>
       <div className="relative z-10">
-        <h2 className="text-4xl font-serif font-bold mb-4">Manual do Usuário</h2>
-        <p className="text-lg text-white/70 max-w-2xl">Bem-vindo ao GastroMetrics. Este guia ajudará você a navegar e extrair o máximo de valor de cada ferramenta da nossa plataforma.</p>
+        <h2 className="text-5xl font-serif font-bold mb-6 tracking-tight">Manual do Usuário</h2>
+        <p className="text-xl text-white/80 max-w-3xl leading-relaxed">Bem-vindo ao ecossistema GastroMetrics. Este guia foi desenhado para ajudar você a dominar cada ferramenta e transformar a gestão do seu restaurante em uma máquina de lucro.</p>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
       {[
         { 
           title: "Dashboard Geral", 
-          icon: <LayoutDashboard size={24}/>, 
-          desc: "Visão panorâmica do seu negócio. Acompanhe faturamento, ticket médio e CMV em tempo real.",
-          use: "Use para começar o dia e identificar tendências rápidas."
+          icon: <LayoutDashboard size={32}/>, 
+          desc: "Sua torre de controle. Acompanhe faturamento, ticket médio e CMV real em tempo real com indicadores visuais de tendência.",
+          use: "Analise diariamente para identificar desvios rápidos e celebrar metas atingidas."
         },
         { 
           title: "Diagnóstico 360°", 
-          icon: <BarChart3 size={24}/>, 
-          desc: "Análise profunda de saúde financeira e operacional.",
-          use: "Use mensalmente para ajustes estratégicos de rota."
+          icon: <BarChart3 size={32}/>, 
+          desc: "Uma auditoria completa da saúde financeira e operacional, comparando seu desempenho com benchmarks do mercado.",
+          use: "Realize mensalmente para planejar os próximos passos estratégicos do negócio."
         },
         { 
           title: "Fichas Técnicas", 
-          icon: <ChefHat size={24}/>, 
-          desc: "Padronização total de receitas e cálculo automático de custos.",
-          use: "Cadastre cada ingrediente para ter precisão cirúrgica no lucro."
+          icon: <ChefHat size={32}/>, 
+          desc: "O coração do lucro. Padronize receitas, controle porções e saiba exatamente quanto custa cada prato que sai da cozinha.",
+          use: "Mantenha atualizado a cada mudança de preço de fornecedor para garantir sua margem."
         },
         { 
           title: "Markup & CMV", 
-          icon: <Calculator size={24}/>, 
-          desc: "Ferramenta de precificação inteligente baseada em custos reais.",
-          use: "Ajuste seus preços sempre que houver variação nos insumos."
+          icon: <Calculator size={32}/>, 
+          desc: "Precificação científica. Calcule o preço de venda ideal considerando impostos, taxas, comissões e sua margem desejada.",
+          use: "Use o simulador antes de lançar novos pratos ou reajustar o cardápio atual."
         },
         { 
           title: "Engenharia de Cardápio", 
-          icon: <TrendingUp size={24}/>, 
-          desc: "Matriz BC para classificar pratos em Estrelas, Cavalos de Carga, Enigmas e Cães.",
-          use: "Otimize seu lucro focando nos pratos que realmente trazem margem."
+          icon: <TrendingUp size={32}/>, 
+          desc: "Inteligência de vendas. Classifique seus pratos pela Matriz BC para saber quais promover e quais retirar do menu.",
+          use: "Revise trimestralmente para manter um cardápio enxuto e altamente rentável."
         },
         { 
           title: "Gestão de Estoque", 
-          icon: <Box size={24}/>, 
-          desc: "Controle de entradas, saídas e alertas de estoque crítico.",
-          use: "Evite rupturas e desperdícios com inventários frequentes."
+          icon: <Box size={32}/>, 
+          desc: "Controle rigoroso de insumos. Alertas automáticos de estoque crítico e análise de Curva ABC para otimizar compras.",
+          use: "Realize inventários semanais dos itens da Classe A para eliminar desperdícios e furtos."
         }
       ].map((item, i) => (
-        <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:border-[#C8973A] transition-all group">
-          <div className="w-12 h-12 rounded-xl bg-[#1A237E]/5 flex items-center justify-center text-[#1A237E] mb-6 group-hover:bg-[#C8973A] group-hover:text-white transition-all">
+        <div key={i} className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 hover:border-[#C8973A] transition-all group hover:shadow-xl transform hover:-translate-y-1">
+          <div className="w-16 h-16 rounded-2xl bg-[#1A237E]/5 flex items-center justify-center text-[#1A237E] mb-8 group-hover:bg-[#C8973A] group-hover:text-white transition-all shadow-sm">
             {item.icon}
           </div>
-          <h3 className="text-lg font-bold text-[#1A237E] mb-3">{item.title}</h3>
-          <p className="text-sm text-gray-500 leading-relaxed mb-4">{item.desc}</p>
-          <div className="pt-4 border-t border-gray-50">
-            <span className="text-[10px] font-bold text-[#C8973A] uppercase tracking-widest">Como usar:</span>
-            <p className="text-xs text-gray-400 mt-1 italic">{item.use}</p>
+          <h3 className="text-xl font-bold text-[#1A237E] mb-4">{item.title}</h3>
+          <p className="text-sm text-gray-500 leading-relaxed mb-6">{item.desc}</p>
+          <div className="pt-6 border-t border-gray-50">
+            <span className="text-[10px] font-bold text-[#C8973A] uppercase tracking-[0.2em] mb-2 block">Estratégia de Uso:</span>
+            <p className="text-xs text-gray-400 leading-relaxed italic font-medium">"{item.use}"</p>
           </div>
         </div>
       ))}
     </div>
 
-    <div className="bg-amber-50 p-8 rounded-2xl border border-amber-100 flex flex-col md:flex-row gap-8 items-center">
-      <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
-        <HelpCircle size={32}/>
+    <div className="bg-amber-50 p-12 rounded-[2.5rem] border border-amber-100 flex flex-col md:flex-row gap-10 items-center shadow-inner">
+      <div className="w-20 h-20 rounded-3xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0 shadow-sm">
+        <HelpCircle size={40}/>
       </div>
-      <div>
-        <h3 className="text-lg font-bold text-amber-900 mb-2">Precisa de suporte adicional?</h3>
-        <p className="text-sm text-amber-800/70">Nossa equipe de consultores está disponível na Comunidade VIP para ajudar com dúvidas específicas sobre a gestão do seu restaurante.</p>
-        <button className="mt-4 px-6 py-2 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700 transition-colors">Acessar Comunidade</button>
+      <div className="text-center md:text-left">
+        <h3 className="text-2xl font-bold text-amber-900 mb-3">Ainda tem dúvidas sobre a plataforma?</h3>
+        <p className="text-base text-amber-800/70 max-w-2xl leading-relaxed">Nossa equipe de consultores especialistas e a comunidade de donos de restaurantes estão prontos para ajudar você a superar qualquer desafio de gestão.</p>
+        <div className="flex flex-wrap gap-4 mt-8 justify-center md:justify-start">
+          <button className="px-8 py-4 bg-amber-600 text-white rounded-2xl text-sm font-black hover:bg-amber-700 transition-all shadow-lg hover:shadow-xl uppercase tracking-widest">Acessar Comunidade</button>
+          <button className="px-8 py-4 bg-white text-amber-600 border border-amber-200 rounded-2xl text-sm font-black hover:bg-amber-100 transition-all shadow-sm uppercase tracking-widest">Falar com Suporte</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1234,6 +1238,35 @@ const ManualView = () => (
 export default function PlatformShell({ onClose }: { onClose: () => void }) {
   const [activeTool, setActiveTool] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const exportToPDF = async () => {
+    if (!contentRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(contentRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`gastrometrics-${activeTool}-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+    }
+  };
+
+  const openAIChat = () => {
+    window.dispatchEvent(new CustomEvent('open-ai-chat'));
+  };
 
   const tools = [
     { id: 'dashboard', label: 'Dashboard Geral', icon: <LayoutDashboard size={20}/>, component: <DashboardView /> },
@@ -1351,7 +1384,10 @@ export default function PlatformShell({ onClose }: { onClose: () => void }) {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-bold border border-emerald-100 hover:bg-emerald-100 transition-colors shadow-sm">
+            <button 
+              onClick={exportToPDF}
+              className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-bold border border-emerald-100 hover:bg-emerald-100 transition-colors shadow-sm"
+            >
               <FileDown size={14} />
               EXPORTAR PDF
             </button>
@@ -1366,7 +1402,7 @@ export default function PlatformShell({ onClose }: { onClose: () => void }) {
         </header>
 
         {/* Content Area */}
-        <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto">
+        <div ref={contentRef} className="p-6 md:p-10 lg:p-12 max-w-[1600px] mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTool}
@@ -1385,6 +1421,7 @@ export default function PlatformShell({ onClose }: { onClose: () => void }) {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
+            onClick={openAIChat}
             className="w-14 h-14 bg-[#1A237E] text-white rounded-full shadow-2xl flex items-center justify-center border-2 border-[#C8973A] relative group"
           >
             <div className="absolute -top-12 right-0 bg-white text-[#1A237E] text-[10px] font-bold px-3 py-1.5 rounded-lg shadow-lg border border-gray-100 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">

@@ -47,6 +47,12 @@ export default function AIChat() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const handleOpenChat = () => setIsOpen(true);
+    window.addEventListener('open-ai-chat', handleOpenChat);
+    return () => window.removeEventListener('open-ai-chat', handleOpenChat);
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -120,41 +126,41 @@ export default function AIChat() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-6 w-[90vw] md:w-[380px] h-[500px] bg-white rounded-2xl shadow-2xl z-50 flex flex-col border border-gray-200 overflow-hidden"
+            className="fixed bottom-28 right-8 w-[90vw] md:w-[420px] h-[600px] bg-white rounded-[2rem] shadow-2xl z-[4000] flex flex-col border border-gray-100 overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-[#1A237E] p-4 flex items-center justify-between text-white">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                  <Sparkles size={20} className="text-[#C8973A]" />
+            <div className="bg-[#1A237E] p-6 flex items-center justify-between text-white shadow-lg relative z-10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20 shadow-inner">
+                  <Sparkles size={24} className="text-[#C8973A]" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm">LC Assistant</h3>
-                  <span className="text-xs text-white/70 flex items-center gap-1">
-                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    Online agora
+                  <h3 className="font-bold text-base tracking-tight">GastroMetrics AI</h3>
+                  <span className="text-[10px] font-bold text-white/50 flex items-center gap-1.5 uppercase tracking-widest">
+                    <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+                    Consultor Online
                   </span>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="p-3 hover:bg-white/10 rounded-xl transition-colors"
               >
-                <X size={20} />
+                <X size={24} />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#FAF8F4]">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FAF8F4] custom-scrollbar">
               {messages.map((msg) => (
                 <div 
                   key={msg.id} 
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div 
-                    className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                    className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
                       msg.role === 'user' 
-                        ? 'bg-[#1A237E] text-white rounded-tr-none' 
+                        ? 'bg-[#1A237E] text-white rounded-tr-none shadow-lg' 
                         : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
                     }`}
                   >
@@ -164,8 +170,8 @@ export default function AIChat() {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
-                    <Loader2 size={16} className="animate-spin text-[#C8973A]" />
+                  <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
+                    <Loader2 size={20} className="animate-spin text-[#C8973A]" />
                   </div>
                 </div>
               )}
@@ -173,20 +179,20 @@ export default function AIChat() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-gray-100 flex gap-2">
+            <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 flex gap-3 shadow-[0_-10px_25px_rgba(0,0,0,0.02)]">
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Digite sua dúvida..."
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#C8973A] focus:bg-white transition-all"
+                placeholder="Como posso ajudar seu restaurante hoje?"
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-6 py-3 text-sm focus:outline-none focus:border-[#C8973A] focus:bg-white transition-all shadow-inner"
               />
               <button 
                 type="submit"
                 disabled={isLoading || !inputValue.trim()}
-                className="w-10 h-10 rounded-full bg-[#C8973A] text-[#1A237E] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#e0aa3e] transition-colors"
+                className="w-12 h-12 rounded-2xl bg-[#C8973A] text-[#1A237E] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#e0aa3e] transition-all shadow-lg hover:shadow-xl active:scale-95"
               >
-                <Send size={18} />
+                <Send size={20} />
               </button>
             </form>
           </motion.div>
@@ -194,12 +200,17 @@ export default function AIChat() {
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-[#C8973A] text-[#1A237E] rounded-full shadow-lg flex items-center justify-center z-50 hover:bg-[#e0aa3e] transition-colors"
+        className="fixed bottom-8 right-8 w-16 h-16 bg-[#C8973A] text-[#1A237E] rounded-2xl shadow-2xl flex items-center justify-center z-[4000] hover:bg-[#e0aa3e] transition-all group"
       >
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+        {isOpen ? <X size={28} /> : (
+          <div className="relative">
+            <MessageSquare size={28} />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#C8973A] animate-bounce"></span>
+          </div>
+        )}
       </motion.button>
     </>
   );

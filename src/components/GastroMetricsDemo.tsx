@@ -50,28 +50,30 @@ export default function GastroMetricsDemo() {
   };
 
   return (
-    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 md:p-8 mt-8 text-white">
-      <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
-        <div className="w-3 h-3 rounded-full bg-red-500"></div>
-        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-        <div className="w-3 h-3 rounded-full bg-green-500"></div>
-        <span className="ml-auto text-sm font-mono opacity-70">Simulador Interativo • GastroMetrics v1.0</span>
+    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-10 md:p-16 mt-16 text-white shadow-2xl">
+      <div className="flex items-center gap-6 mb-12 border-b border-white/10 pb-8">
+        <div className="flex gap-3">
+          <div className="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.6)]"></div>
+          <div className="w-4 h-4 rounded-full bg-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]"></div>
+          <div className="w-4 h-4 rounded-full bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)]"></div>
+        </div>
+        <span className="ml-auto text-xs font-bold font-mono opacity-60 tracking-[0.2em] uppercase">Simulador Interativo • GastroMetrics v1.0</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[35%_65%] gap-16">
         {/* Controls */}
-        <div className="space-y-5">
-          <h3 className="text-xl font-serif font-bold text-[#C8973A] mb-2">Insira os dados do seu negócio</h3>
+        <div className="space-y-10">
+          <h3 className="text-3xl font-serif font-bold text-[#C8973A] mb-6">Parâmetros do Negócio</h3>
           
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-wider opacity-80">Faturamento Mensal Estimado</label>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-mono">R$</span>
+          <div className="space-y-6">
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">Faturamento Mensal Estimado</label>
+            <div className="flex items-center gap-4">
+              <span className="text-3xl font-mono text-[#C8973A]">R$</span>
               <input 
                 type="number" 
                 value={revenue} 
                 onChange={(e) => setRevenue(Number(e.target.value))}
-                className="w-full bg-white/5 border border-white/20 rounded px-3 py-2 text-white focus:border-[#C8973A] outline-none transition-colors"
+                className="w-full bg-white/5 border border-white/20 rounded-2xl px-6 py-4 text-2xl font-mono text-white focus:border-[#C8973A] outline-none transition-all focus:bg-white/10 shadow-inner"
               />
             </div>
             <input 
@@ -81,14 +83,14 @@ export default function GastroMetricsDemo() {
               step="1000" 
               value={revenue} 
               onChange={(e) => setRevenue(Number(e.target.value))}
-              className="w-full accent-[#C8973A]" 
+              className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#C8973A]" 
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-6">
             <div className="flex justify-between">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-80">CMV (Custo Mercadoria)</label>
-              <span className="font-mono text-[#C8973A]">{cmv}%</span>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">CMV (Custo Mercadoria)</label>
+              <span className="font-mono text-[#C8973A] font-bold text-2xl">{cmv}%</span>
             </div>
             <input 
               type="range" 
@@ -96,28 +98,32 @@ export default function GastroMetricsDemo() {
               max="60" 
               value={cmv} 
               onChange={(e) => setCmv(Number(e.target.value))}
-              className="w-full accent-[#C8973A]" 
+              className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#C8973A]" 
             />
-            <p className="text-xs opacity-50">Ideal: 25% - 32%</p>
+            <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest">
+              <span className="opacity-40">Mín: 15%</span>
+              <span className="text-emerald-400">Ideal: 25% - 32%</span>
+              <span className="opacity-40">Máx: 60%</span>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-wider opacity-80">Custos Fixos (Aluguel, Folha, etc)</label>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-mono">R$</span>
+          <div className="space-y-6">
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">Custos Fixos (Aluguel, Folha, etc)</label>
+            <div className="flex items-center gap-4">
+              <span className="text-3xl font-mono text-[#C8973A]">R$</span>
               <input 
                 type="number" 
                 value={fixedCosts} 
                 onChange={(e) => setFixedCosts(Number(e.target.value))}
-                className="w-full bg-white/5 border border-white/20 rounded px-3 py-2 text-white focus:border-[#C8973A] outline-none transition-colors"
+                className="w-full bg-white/5 border border-white/20 rounded-2xl px-6 py-4 text-2xl font-mono text-white focus:border-[#C8973A] outline-none transition-all focus:bg-white/10 shadow-inner"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-6">
              <div className="flex justify-between">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-80">Custos Variáveis (Impostos/Taxas)</label>
-              <span className="font-mono text-[#C8973A]">{variableCosts}%</span>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">Custos Variáveis (Impostos/Taxas)</label>
+              <span className="font-mono text-[#C8973A] font-bold text-2xl">{variableCosts}%</span>
             </div>
             <input 
               type="range" 
@@ -125,25 +131,25 @@ export default function GastroMetricsDemo() {
               max="30" 
               value={variableCosts} 
               onChange={(e) => setVariableCosts(Number(e.target.value))}
-              className="w-full accent-[#C8973A]" 
+              className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#C8973A]" 
             />
           </div>
         </div>
 
         {/* Dashboard */}
-        <div className="bg-black/20 rounded-lg p-5 border border-white/5">
-          <h3 className="text-lg font-serif font-bold text-white mb-4 text-center">Resultado da Simulação</h3>
+        <div className="bg-black/40 rounded-[2rem] p-12 border border-white/10 shadow-2xl">
+          <h3 className="text-2xl font-serif font-bold text-white mb-10 text-center uppercase tracking-[0.3em]">Análise de Viabilidade</h3>
           
-          <div className="h-60 w-full mb-4">
+          <div className="h-80 w-full mb-12">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
+                  innerRadius={80}
+                  outerRadius={120}
+                  paddingAngle={10}
                   dataKey="value"
                 >
                   {data.map((entry, index) => (
@@ -152,39 +158,39 @@ export default function GastroMetricsDemo() {
                 </Pie>
                 <Tooltip 
                   formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ backgroundColor: '#1A237E', borderColor: '#C8973A', color: '#fff' }}
-                  itemStyle={{ color: '#fff' }}
+                  contentStyle={{ backgroundColor: '#1A237E', borderRadius: '16px', border: '1px solid #C8973A', color: '#fff', padding: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}
+                  itemStyle={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}
                 />
-                <Legend />
+                <Legend iconType="circle" wrapperStyle={{ paddingTop: '30px' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white/5 p-3 rounded border border-white/10 overflow-hidden">
-              <div className="text-xs uppercase opacity-60 mb-1">Lucro Líquido</div>
-              <div className={`text-lg font-bold font-mono whitespace-nowrap ${results.profit > 0 ? 'text-[#2E7D32]' : 'text-red-400'}`}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <div className="bg-white/5 p-8 rounded-2xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all transform hover:scale-[1.02] shadow-lg">
+              <div className="text-[10px] uppercase font-bold opacity-50 tracking-[0.2em] mb-3">Lucro Líquido</div>
+              <div className={`text-3xl font-black font-mono whitespace-nowrap ${results.profit > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                 {formatCurrency(results.profit)}
               </div>
-              <div className={`text-xs ${results.profit > 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <div className={`text-sm font-bold mt-2 ${results.profit > 0 ? 'text-emerald-400/70' : 'text-red-400/70'}`}>
                 Margem: {results.profitMargin.toFixed(1)}%
               </div>
             </div>
             
-            <div className="bg-white/5 p-3 rounded border border-white/10 overflow-hidden">
-              <div className="text-xs uppercase opacity-60 mb-1">Ponto de Equilíbrio</div>
-              <div className="text-lg font-bold font-mono text-[#C8973A] whitespace-nowrap">
+            <div className="bg-white/5 p-8 rounded-2xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all transform hover:scale-[1.02] shadow-lg">
+              <div className="text-[10px] uppercase font-bold opacity-50 tracking-[0.2em] mb-3">Ponto de Equilíbrio</div>
+              <div className="text-3xl font-black font-mono text-[#C8973A] whitespace-nowrap">
                 {formatCurrency(results.breakEven)}
               </div>
-              <div className="text-xs opacity-60">
-                Meta mínima
+              <div className="text-xs opacity-40 font-bold mt-2 uppercase tracking-widest">
+                Meta mínima de vendas
               </div>
             </div>
           </div>
           
-          <div className="mt-6 text-center">
-            <p className="text-sm opacity-70 mb-3">Quer otimizar esses números?</p>
-            <a href="#contato" className="inline-block bg-[#C8973A] text-[#1A237E] font-bold py-2 px-6 rounded hover:bg-[#e0aa3e] transition-colors text-sm">
+          <div className="mt-12 text-center">
+            <p className="text-base opacity-60 mb-8 font-medium italic leading-relaxed">"Dados precisos geram decisões lucrativas."</p>
+            <a href="#contato" className="inline-flex items-center gap-3 bg-[#C8973A] text-[#1A237E] font-black py-5 px-12 rounded-2xl hover:bg-[#e0aa3e] transition-all transform hover:scale-105 shadow-2xl uppercase text-sm tracking-[0.2em]">
               Solicitar Análise Completa
             </a>
           </div>
